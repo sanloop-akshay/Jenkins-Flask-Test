@@ -1,0 +1,30 @@
+pipeline{
+    agent any
+    environment {
+        IMAGE_NAME = 'akshaypranavb/jenkins-test-flask-application'
+    }
+    stages{
+        stage('Checkout'){
+            steps{
+                git branch : 'main', url: 'https://github.com/sanloop-akshay/Jenkins-Flask-Test'
+            }
+        }
+        stage('Build Docker Image'){
+            steps{
+                bash 'docker build -t $IMAGE_NAME:latest .'
+            }
+
+        }
+        stage('Push Docker Image'){
+            steps{
+                withCredentials([usernamePassword(credentisalsId: 'effe4786-bc5a-4214-9723-9abd1c84cae6',usernameVariable: 'DOCKER_USERNAME',passwordVariable: 'DOCKER_PASSWORD')]){
+                    bash '''
+                    echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                    docker push $IMAGE_NAME:latest
+                    '''
+                }
+            }
+        }
+
+    }
+}
