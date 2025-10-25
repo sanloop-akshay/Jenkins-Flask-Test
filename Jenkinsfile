@@ -17,7 +17,7 @@ pipeline{
         }
         stage('Push Docker Image'){
             steps{
-                withCredentials([usernamePassword(credentisalsId: 'jenkins-docker-flask-test',usernameVariable: 'DOCKER_USERNAME',passwordVariable: 'DOCKER_PASSWORD')]){
+                withCredentials([usernamePassword(credentialsId: 'jenkins-docker-flask-test',usernameVariable: 'DOCKER_USERNAME',passwordVariable: 'DOCKER_PASSWORD')]){
                     sh '''
                     echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
                     docker push $IMAGE_NAME:latest
