@@ -1,12 +1,12 @@
 pipeline {
     agent any
     environment {
-        IMAGE_NAME = 'akshaypranavb/jenkins-test-flask-application'
+        IMAGE_NAME = 'akshaypranavb/ci-cd-pipeline-flask'
     }
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/sanloop-akshay/Jenkins-Flask-Test'
+                git branch: 'main', url: 'https://github.com/sanloop-akshay/CI-CD-Pipeline'
             }
         }
 
@@ -34,7 +34,7 @@ pipeline {
                         sh '''
                             echo "Running SonarQube analysis..."
                             $SCANNER_HOME/bin/sonar-scanner \
-                            -Dsonar.projectKey=jenkins-flask-test \
+                            -Dsonar.projectKey=ci-cd-pipeline-flask \
                             -Dsonar.sources=. \
                             -Dsonar.host.url=$SONAR_HOST_URL \
                             -Dsonar.login=$SONAR_TOKEN

@@ -10,7 +10,7 @@ on:
 
 env:
   IMAGE_NAME: akshaypranavb/jenkins-test-flask-application
-  SONAR_PROJECT_KEY: jenkins-flask-test
+  SONAR_PROJECT_KEY: ci-cd-pipeline-flask
   SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} 
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}        
 
