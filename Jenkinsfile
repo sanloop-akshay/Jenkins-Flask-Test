@@ -26,7 +26,7 @@ pipeline {
 
         stage('SonarQube Scan') {
             environment {
-                SCANNER_HOME = tool 'SonarScanner' 
+                SCANNER_HOME = tool 'SonarScanner'
             }
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
@@ -34,15 +34,16 @@ pipeline {
                         sh '''
                         echo "Running SonarQube analysis..."
                         $SCANNER_HOME/bin/sonar-scanner \
-                          -Dsonar.projectKey=jenkins-flask-test \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=$SONARQUBE_URL \
-                          -Dsonar.login=$SONAR_TOKEN
+                        -Dsonar.projectKey=jenkins-flask-test \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_TOKEN
                         '''
                     }
                 }
             }
         }
+
 
         stage('Build Docker Image') {
             steps {
