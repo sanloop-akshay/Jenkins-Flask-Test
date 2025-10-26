@@ -24,6 +24,26 @@ pipeline {
             }
         }
 
+        stage('SonarQube Scan') {
+            environment {
+                SCANNER_HOME = tool 'SonarScanner' 
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('sonarqube') { 
+                        sh '''
+                        echo "Running SonarQube analysis..."
+                        $SCANNER_HOME/bin/sonar-scanner \
+                          -Dsonar.projectKey=jenkins-flask-test \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=$SONARQUBE_URL \
+                          -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t $IMAGE_NAME:latest .'
@@ -32,7 +52,7 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: '7edba577-5c8e-4fb4-87d9-81f3d38dfb96', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]){
+                withCredentials([usernamePassword(credentialsId: '7edba577-5c8e-4fb4-87d9-81f3d38dfb96', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     retry(3) {
                         sh '''
                         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
