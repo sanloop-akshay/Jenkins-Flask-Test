@@ -44,7 +44,6 @@ pipeline {
             }
         }
 
-
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t $IMAGE_NAME:latest .'
@@ -60,6 +59,25 @@ pipeline {
                         docker push $IMAGE_NAME:latest
                         '''
                     }
+                }
+            }
+        }
+
+        stage('Deploy to Azure VM') {
+            steps {
+
+                withCredentials([
+                    string(credentialsId: 'vm-ip', variable: 'VM_IP'),
+                    file(credentialsId: 'vm-pem', variable: 'PEM_FILE')
+                ]) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no -i $PEM_FILE azureuser@$VM_IP "
+                        docker pull $IMAGE_NAME:latest &&
+                        docker stop flask_app || true &&
+                        docker rm flask_app || true &&
+                        docker run -d --name flask_app -p 8000:8000 $IMAGE_NAME:latest
+                    "
+                    '''
                 }
             }
         }
