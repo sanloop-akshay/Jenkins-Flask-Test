@@ -32,12 +32,12 @@ pipeline {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv('sonarqube') { 
                         sh '''
-                        echo "Running SonarQube analysis..."
-                        $SCANNER_HOME/bin/sonar-scanner \
-                        -Dsonar.projectKey=jenkins-flask-test \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN
+echo "Running SonarQube analysis..."
+$SCANNER_HOME/bin/sonar-scanner \
+-Dsonar.projectKey=jenkins-flask-test \
+-Dsonar.sources=. \
+-Dsonar.host.url=$SONAR_HOST_URL \
+-Dsonar.login=$SONAR_TOKEN
                         '''
                     }
                 }
