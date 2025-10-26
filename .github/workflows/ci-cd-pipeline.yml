@@ -61,3 +61,15 @@ jobs:
 
       - name: Push Docker image
         run: docker push $IMAGE_NAME:latest
+
+      - name: Deploy to Azure VM
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.AZURE_VM_IP }}
+          username: azureuser
+          key: ${{ secrets.AZURE_VM_PEM }}
+          script: |
+            docker pull $IMAGE_NAME:latest
+            docker stop flask_app || true
+            docker rm flask_app || true
+            docker run -d --name flask_app -p 8000:5000 $IMAGE_NAME:latest
