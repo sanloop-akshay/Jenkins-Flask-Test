@@ -75,7 +75,7 @@ pipeline {
                         docker pull $IMAGE_NAME:latest &&
                         docker stop flask_app || true &&
                         docker rm flask_app || true &&
-                        docker run -d --name flask_app -p 8000:8000 $IMAGE_NAME:latest
+                        docker run -d --name flask_app -p 8000:5000 $IMAGE_NAME:latest
                     "
                     '''
                 }
