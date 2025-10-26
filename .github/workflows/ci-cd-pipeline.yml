@@ -64,10 +64,13 @@ jobs:
 
       - name: Deploy to Azure VM
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.AZURE_VM_PEM }} azureuser@${{ secrets.AZURE_VM_IP }} "
+          echo "${{ secrets.AZURE_VM_PEM }}" > private_key.pem
+          chmod 600 private_key.pem
+          ssh -o StrictHostKeyChecking=no -i private_key.pem azureuser@${{ secrets.AZURE_VM_IP }} "
             IMAGE_NAME=${IMAGE_NAME}
             docker pull \$IMAGE_NAME:latest &&
             docker stop flask_app || true &&
             docker rm flask_app || true &&
             docker run -d --name flask_app -p 8000:5000 \$IMAGE_NAME:latest
           "
+
