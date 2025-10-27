@@ -1,10 +1,8 @@
 pipeline {
     agent any
-
     environment {
         IMAGE_NAME = 'akshaypranavb/ci-cd-pipeline-flask'
     }
-
     stages {
         stage('Checkout') {
             steps {
@@ -48,10 +46,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh '''
-                echo "Building Docker image..."
-                docker build -t $IMAGE_NAME:latest .
-                '''
+                sh 'docker build -t $IMAGE_NAME:latest .'
             }
         }
 
@@ -68,25 +63,20 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy to Azure VM') {
             steps {
-                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE')]) {
+
+                withCredentials([
+                    string(credentialsId: 'vm-ip', variable: 'VM_IP'),
+                    file(credentialsId: 'vm-pem', variable: 'PEM_FILE')
+                ]) {
                     sh '''
-                    echo "Setting up kubectl..."
-                    export KUBECONFIG=$KUBECONFIG_FILE
-
-                    echo "Updating image in deployment file (if required)..."
-                    sed -i "s|image: .*|image: ${IMAGE_NAME}:latest|g" k8s/deployment.yaml || true
-
-                    echo "Applying Kubernetes manifests..."
-                    kubectl apply -f k8s/deployment.yaml
-                    kubectl apply -f k8s/service.yaml
-
-                    echo "Waiting for rollout to complete..."
-                    kubectl rollout status deployment/flask-app
-
-                    echo "Deployment successful!"
-                    kubectl get svc flask-service
+                    ssh -o StrictHostKeyChecking=no -i $PEM_FILE azureuser@$VM_IP "
+                        docker pull $IMAGE_NAME:latest &&
+                        docker stop flask_app || true &&
+                        docker rm flask_app || true &&
+                        docker run -d --name flask_app -p 8000:5000 $IMAGE_NAME:latest
+                    "
                     '''
                 }
             }
